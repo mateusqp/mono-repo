@@ -10,4 +10,4 @@ ingress:
         - path: /
           service:
             component: frontend
-            port: 3000
+            port: 80
