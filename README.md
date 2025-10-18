@@ -11,6 +11,36 @@ The setup targets four environments — `local`, `des`, `hom`, and `prod` — us
 2. **Frontend client** – review [`apps/frontend`](./apps/frontend/README.md) for guidance on bootstrapping the React + Vite project.
 3. **Helm chart** – configure deployment manifests via [`ops/helm/app-chart`](./ops/helm/app-chart/README.md), including environment-specific values files such as `values-local.yaml` and `values-prod.yaml`.
 
+## Local development with Docker Compose
+
+1. Duplicate the sample environment file and adjust it for your Keycloak realm and database credentials:
+   ```bash
+   cp .env.example .env
+   ```
+2. Start the full stack (PostgreSQL + Spring Boot backend + Vite dev server) – the first run will build the backend image and install frontend dependencies:
+   ```bash
+   docker compose up --build
+   # or use the classic syntax if you are on docker-compose v1
+   # docker-compose up --build
+   ```
+3. Access the services once the containers report `healthy`/`Ready`:
+   - Frontend (Vite dev server): http://localhost:5173
+   - Backend (Spring Boot): http://localhost:8080 (health check at `/actuator/health`)
+   - PostgreSQL: localhost:5432 (user/password from `.env`)
+
+### OIDC login flow
+
+- The default `.env.example` points to the shared development realm hosted at `https://sso-des.nuvem.unicamp.br/realms/app` with the public client `app-frontend`.
+- When you click "Sign in" in the frontend, you will be redirected to that Keycloak instance. Use the credentials provisioned by the identity team for the shared realm.
+- If you need to test with another realm or a local Keycloak instance, update the OIDC variables in `.env` (`KC_ISSUER_URI`, `KC_CLIENT_ID`, and the `VITE_OIDC_*` entries) and restart the stack.
+- For scenarios without Keycloak access, you can temporarily mock the flow by serving a static `/config/config.json` in `apps/frontend/public/config/` with the necessary OIDC values and using test JWTs issued by tools such as [Mock IDP](https://www.mockidp.com/). Remember to revert to the shared realm before committing changes.
+
+To stop the environment and remove the containers/volumes:
+```bash
+docker compose down -v
+```
+
+
 ---
 
 ## 1. Repository Layout

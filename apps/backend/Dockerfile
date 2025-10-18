@@ -1,9 +1,12 @@
+# Build stage
+FROM maven:3-eclipse-temurin-21 AS build
+WORKDIR /workspace
+COPY pom.xml ./
+COPY src ./src
+RUN mvn -DskipTests package
+
+# Runtime stage
 FROM eclipse-temurin:21-jre
-
 WORKDIR /app
-
-ARG JAR_FILE=target/backend-0.0.1-SNAPSHOT.jar
-
-COPY ${JAR_FILE} /app/app.jar
-
+COPY --from=build /workspace/target/*.jar /app/app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
