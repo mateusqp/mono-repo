@@ -11,3 +11,12 @@ This directory will host the Kubernetes Helm chart that deploys the backend and 
 - `values-prod.yaml`
 
 Populate each file with environment-specific overrides as the project evolves.
+
+## Frontend runtime configuration
+
+The chart can project a ConfigMap into the frontend container for runtime configuration files.
+
+- Enable the resource with `frontend.config.enabled`.
+- Provide file contents via `frontend.config.data` (keys map to filenames inside the ConfigMap).
+- Control where the file is mounted with `frontend.config.mountPath` (defaults to `/usr/share/nginx/html/config/config.json`).
+- Ensure the data map contains a key matching the basename of the mount path so the file can be mounted from the ConfigMap.

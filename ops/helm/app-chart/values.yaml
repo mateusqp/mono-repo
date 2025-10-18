@@ -107,6 +107,10 @@ frontend:
         port: http
       initialDelaySeconds: 5
       periodSeconds: 10
+  config:
+    enabled: false
+    mountPath: /usr/share/nginx/html/config/config.json
+    data: {}
   externalSecret:
     enabled: false
     refreshInterval: 1h
