@@ -1,0 +1,16 @@
+global:
+  namespace: app-prod
+
+ingress:
+  enabled: true
+  hosts:
+    - host: app.example.com
+      paths:
+        - path: /
+          service:
+            component: frontend
+            port: 3000
+  tls:
+    - secretName: app-prod-tls
+      hosts:
+        - app.example.com

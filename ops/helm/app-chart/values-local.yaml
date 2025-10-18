@@ -1,0 +1,13 @@
+global:
+  namespace: app-local
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: app.local.test
+      paths:
+        - path: /
+          service:
+            component: frontend
+            port: 3000

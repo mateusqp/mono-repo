@@ -1,0 +1,140 @@
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  namespace: default
+  imagePullSecrets: []
+
+backend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ghcr.io/example/mono-repo-backend
+    tag: ""
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 8080
+    targetPort: 8080
+    annotations: {}
+  resources: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  command: []
+  args: []
+  env: []
+  envFrom: []
+  probes:
+    liveness:
+      enabled: false
+      httpGet:
+        path: /healthz
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: false
+      httpGet:
+        path: /readyz
+        port: http
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  config:
+    enabled: false
+    data: {}
+  secret:
+    enabled: false
+    type: Opaque
+    stringData: {}
+  keycloak:
+    enabled: false
+    baseUrl: "https://sso.example.com"
+    realm: mono-repo
+    clientId: backend
+  externalSecret:
+    enabled: false
+    refreshInterval: 1h
+    creationPolicy: Owner
+    secretStoreRef:
+      name: kube-secrets
+      kind: ClusterSecretStore
+    data: []
+    dataFrom: []
+  monitoring:
+    serviceMonitor:
+      enabled: false
+      port: http
+      interval: ""
+      scrapeTimeout: ""
+      labels: {}
+      annotations: {}
+
+frontend:
+  enabled: true
+  replicaCount: 2
+  image:
+    repository: ghcr.io/example/mono-repo-frontend
+    tag: ""
+    pullPolicy: IfNotPresent
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+    annotations: {}
+  resources: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  command: []
+  args: []
+  env: []
+  envFrom: []
+  probes:
+    liveness:
+      enabled: false
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 10
+      periodSeconds: 30
+    readiness:
+      enabled: false
+      httpGet:
+        path: /
+        port: http
+      initialDelaySeconds: 5
+      periodSeconds: 10
+  externalSecret:
+    enabled: false
+    refreshInterval: 1h
+    creationPolicy: Owner
+    secretStoreRef:
+      name: kube-secrets
+      kind: ClusterSecretStore
+    data: []
+    dataFrom: []
+  monitoring:
+    serviceMonitor:
+      enabled: false
+      port: http
+      interval: ""
+      scrapeTimeout: ""
+      labels: {}
+      annotations: {}
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: app.local.test
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            component: frontend
+            port: 3000
+  tls: []

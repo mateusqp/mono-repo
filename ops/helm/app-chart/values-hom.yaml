@@ -1,0 +1,16 @@
+global:
+  namespace: app-hom
+
+ingress:
+  enabled: true
+  hosts:
+    - host: app.hom.example.com
+      paths:
+        - path: /
+          service:
+            component: frontend
+            port: 3000
+  tls:
+    - secretName: app-hom-tls
+      hosts:
+        - app.hom.example.com

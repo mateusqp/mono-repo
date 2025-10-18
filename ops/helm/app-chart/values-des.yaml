@@ -1,0 +1,16 @@
+global:
+  namespace: app-des
+
+ingress:
+  enabled: true
+  hosts:
+    - host: app.des.example.com
+      paths:
+        - path: /
+          service:
+            component: frontend
+            port: 3000
+  tls:
+    - secretName: app-des-tls
+      hosts:
+        - app.des.example.com
