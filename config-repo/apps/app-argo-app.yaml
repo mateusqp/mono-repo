@@ -1,0 +1,83 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-local
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:example-org/config-repo.git
+    targetRevision: main
+    path: environments/local
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app-local
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-des
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:example-org/config-repo.git
+    targetRevision: main
+    path: environments/des
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app-des
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-hom
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:example-org/config-repo.git
+    targetRevision: main
+    path: environments/hom
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app-hom
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-prod
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: git@github.com:example-org/config-repo.git
+    targetRevision: main
+    path: environments/prod
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: app-prod
+  syncPolicy:
+    syncOptions:
+      - CreateNamespace=true
+    automated:
+      selfHeal: true
+      prune: true

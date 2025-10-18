@@ -1,0 +1,33 @@
+images:
+  backend:
+    repository: ghcr.io/company/app-backend
+    tag: hom-latest
+  frontend:
+    repository: ghcr.io/company/app-frontend
+    tag: hom-latest
+ingress:
+  className: nginx
+  host: app.hom.company.internal
+  tls:
+    enabled: true
+    secretName: app-hom-tls
+keycloak:
+  baseUrl: https://sso.hom.company.internal
+  realm: app-hom
+  clientId: app-client
+  callbackUrl: https://app.hom.company.internal/oauth/callback
+env:
+  name: hom
+  namespace: app-hom
+  fqdn: app.hom.company.internal
+  variables:
+    - name: APP_ENV
+      value: hom
+    - name: KEYCLOAK_REALM
+      value: app-hom
+monitoring:
+  enabled: true
+  serviceMonitor:
+    namespace: monitoring
+    labels:
+      release: kube-prometheus-stack

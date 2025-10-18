@@ -1,0 +1,33 @@
+images:
+  backend:
+    repository: ghcr.io/company/app-backend
+    tag: des-latest
+  frontend:
+    repository: ghcr.io/company/app-frontend
+    tag: des-latest
+ingress:
+  className: nginx
+  host: app.des.company.internal
+  tls:
+    enabled: true
+    secretName: app-des-tls
+keycloak:
+  baseUrl: https://sso.des.company.internal
+  realm: app-des
+  clientId: app-client
+  callbackUrl: https://app.des.company.internal/oauth/callback
+env:
+  name: des
+  namespace: app-des
+  fqdn: app.des.company.internal
+  variables:
+    - name: APP_ENV
+      value: des
+    - name: KEYCLOAK_REALM
+      value: app-des
+monitoring:
+  enabled: true
+  serviceMonitor:
+    namespace: monitoring
+    labels:
+      release: kube-prometheus-stack
