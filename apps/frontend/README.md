@@ -10,6 +10,7 @@ blueprint identity provider and demonstrates silent token renewal and route prot
 cd apps/frontend
 npm install
 npm run dev
+npm test
 ```
 
 The development server listens on port `5173` by default. Override OIDC settings with environment
@@ -72,6 +73,7 @@ Any value from `config.json` can be overridden with the matching `import.meta.en
 - `npm run preview` – preview the production build.
 - `npm run lint` – run ESLint.
 - `npm run format` – apply Prettier to supported files.
+- `npm test` – execute the Vitest suite (use `npm test -- --ci --watch=false` in CI environments).
 
 ## Docker image
 
