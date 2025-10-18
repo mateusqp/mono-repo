@@ -1,0 +1,33 @@
+images:
+  backend:
+    repository: ghcr.io/company/app-backend
+    tag: local
+  frontend:
+    repository: ghcr.io/company/app-frontend
+    tag: local
+ingress:
+  className: nginx
+  host: app.local.test
+  tls:
+    enabled: false
+    secretName: ""
+keycloak:
+  baseUrl: https://sso.local.test
+  realm: app
+  clientId: app-client
+  callbackUrl: https://app.local.test/oauth/callback
+env:
+  name: local
+  namespace: app-local
+  fqdn: app.local.test
+  variables:
+    - name: APP_ENV
+      value: local
+    - name: KEYCLOAK_REALM
+      value: app
+monitoring:
+  enabled: false
+  serviceMonitor:
+    namespace: monitoring
+    labels:
+      release: kube-prometheus-stack

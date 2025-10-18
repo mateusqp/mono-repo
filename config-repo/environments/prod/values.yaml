@@ -1,0 +1,33 @@
+images:
+  backend:
+    repository: ghcr.io/company/app-backend
+    tag: prod-latest
+  frontend:
+    repository: ghcr.io/company/app-frontend
+    tag: prod-latest
+ingress:
+  className: nginx
+  host: app.company.com
+  tls:
+    enabled: true
+    secretName: app-prod-tls
+keycloak:
+  baseUrl: https://sso.company.com
+  realm: app
+  clientId: app-client
+  callbackUrl: https://app.company.com/oauth/callback
+env:
+  name: prod
+  namespace: app-prod
+  fqdn: app.company.com
+  variables:
+    - name: APP_ENV
+      value: prod
+    - name: KEYCLOAK_REALM
+      value: app
+monitoring:
+  enabled: true
+  serviceMonitor:
+    namespace: monitoring
+    labels:
+      release: kube-prometheus-stack
