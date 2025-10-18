@@ -2,8 +2,14 @@
 
 ## Overview
 
-This document specifies the baseline structure for a **mono-repo** integrating a **Spring Boot 3.x (Java 21)** backend and a **React + Vite + TypeScript** frontend.  
+This document specifies the baseline structure for a **mono-repo** integrating a **Spring Boot 3.x (Java 21)** backend and a **React + Vite + TypeScript** frontend.
 The setup targets four environments — `local`, `des`, `hom`, and `prod` — using **GitLab CI**, **Helm**, **ArgoCD**, **Vault**, **Harbor**, **Prometheus/Grafana**, and **Keycloak**.
+
+## Quickstart
+
+1. **Backend service** – explore the scaffold under [`apps/backend`](./apps/backend/README.md) to begin the Spring Boot implementation.
+2. **Frontend client** – review [`apps/frontend`](./apps/frontend/README.md) for guidance on bootstrapping the React + Vite project.
+3. **Helm chart** – configure deployment manifests via [`ops/helm/app-chart`](./ops/helm/app-chart/README.md), including environment-specific values files such as `values-local.yaml` and `values-prod.yaml`.
 
 ---
 
