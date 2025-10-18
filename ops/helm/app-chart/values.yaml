@@ -66,6 +66,7 @@ backend:
     serviceMonitor:
       enabled: false
       port: http
+      path: /actuator/prometheus
       interval: ""
       scrapeTimeout: ""
       labels: {}
