@@ -137,6 +137,46 @@ Main responsibilities:
 
 Promotion DES→HOM→PROD occurs by **merge** updating `values.yaml` in the config-repo.
 
+### 7.1 Job overview
+
+The pipeline defined in [`.gitlab-ci.yml`](./.gitlab-ci.yml) introduces the following jobs:
+
+| Stage   | Job                   | Runtime image                | Notes |
+|---------|----------------------|------------------------------|-------|
+| build   | `backend:build`      | `maven:3-eclipse-temurin-21` | Compiles the Spring Boot app with Maven caching enabled. |
+| build   | `frontend:build`     | `node:20`                    | Installs frontend dependencies via `npm ci`. |
+| test    | `backend:test`       | `maven:3-eclipse-temurin-21` | Runs unit tests after the build. |
+| test    | `frontend:test`      | `node:20`                    | Executes headless tests (`npm test -- --ci --watch=false`). |
+| package | `backend:package`    | `maven:3-eclipse-temurin-21` | Produces the runnable JAR used later by Docker build (artifact retained for 1 week). |
+| package | `frontend:package`   | `node:20`                    | Generates the production `dist/` bundle (artifact retained for 1 week). |
+| push    | `build-and-push-images` | `docker:24` with `docker:24-dind` | Builds/pushes backend and frontend images to Harbor using the packaged artifacts. |
+| update-config-repo | `update-config-repo` | `alpine:3.20` (installs `ruamel.yaml`) | Clones the external config repo, updates `environments/*/values.yaml`, pushes a branch, and optionally opens a merge request. |
+
+`IMAGE_TAG` defaults to `v${CI_COMMIT_TAG:-0.0.0}-${CI_COMMIT_SHORT_SHA}`, producing deterministic tags for both images.
+
+### 7.2 Protected CI/CD variables
+
+Configure the following variables as **masked + protected** in GitLab (Settings → CI/CD → Variables):
+
+| Variable | Description |
+|----------|-------------|
+| `HARBOR_USER` / `HARBOR_PASSWORD` | Credentials for `harbor.example.com`. A robot account with project-scoped permissions is recommended. |
+| `HARBOR_REGISTRY` (optional override) | Defaults to `harbor.example.com/project`. Override if the registry/project path differs. |
+| `CONFIG_REPO_URL` | HTTPS/SSH URL (including credentials or using deploy tokens) for the ArgoCD config repository. Required for clone/push. |
+| `CONFIG_REPO_BRANCH` (optional) | Target branch for updates. Defaults to `main` when unset. |
+| `CONFIG_REPO_PROJECT_ID` | Numeric project ID used to open merge requests through the GitLab API. |
+| `GITLAB_TOKEN` | Personal/Project access token with `api` scope to create merge requests on the config repo. |
+| `GITLAB_API_URL` (optional) | GitLab API base URL. Defaults to `https://gitlab.com/api/v4` for SaaS; adjust for self-managed instances. |
+
+> ℹ️ Set these variables as **protected** to ensure they are available only on protected branches/tags. The `build-and-push-images` job requires the runner to run in *privileged* mode for Docker-in-Docker.
+
+### 7.3 Runner and tooling requirements
+
+- **Docker-in-Docker:** The runner executor must enable privileged containers and the `docker:24-dind` service so the `build-and-push-images` job can execute `docker build`/`push`.
+- **Network access:** Ensure outbound connectivity to `harbor.example.com` and the Git server hosting the config repository.
+- **Python tooling:** The `update-config-repo` job installs `ruamel.yaml` via `pip` to edit `values.yaml`. This runs inside an `alpine` container and does not require system-level changes on the runner.
+- **Git configuration:** The job pushes to a temporary branch (`update-images-<commit>`) and, when tokens are provided, creates a merge request automatically. Merge approvals/policies can be enforced on the config repository as needed.
+
 ---
 
 ## 8. Vault & External Secrets
