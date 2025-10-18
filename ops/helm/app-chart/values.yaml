@@ -53,6 +53,9 @@ backend:
     baseUrl: "https://sso.example.com"
     realm: mono-repo
     clientId: backend
+    issuerUri: "https://sso.example.com/realms/mono-repo"
+    audience: ""
+    jwkSetUri: ""
   externalSecret:
     enabled: false
     refreshInterval: 1h
