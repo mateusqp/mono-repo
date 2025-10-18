@@ -1,0 +1,45 @@
+spring:
+  application:
+    name: backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/backend}
+    username: ${DB_USERNAME:backend}
+    password: ${DB_PASSWORD:backend}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+    open-in-view: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: ${KC_ISSUER_URI}
+          jwk-set-uri: ${KC_JWK_SET_URI:${KC_ISSUER_URI}/protocol/openid-connect/certs}
+          audiences: ${KC_AUDIENCE:${KC_CLIENT_ID}}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    prometheus:
+      enabled: true
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+app:
+  security:
+    cors:
+      allowed-origins: ${KC_ALLOWED_ORIGINS:https://example.com}
+      allowed-methods: ${KC_ALLOWED_METHODS:GET}
+      allowed-headers: ${KC_ALLOWED_HEADERS:Authorization,Content-Type}
