@@ -15,6 +15,9 @@ keycloak:
   baseUrl: https://sso.company.com
   realm: app
   clientId: app-client
+  issuerUri: https://sso.company.com/realms/app
+  audience: ""
+  jwkSetUri: ""
   callbackUrl: https://app.company.com/oauth/callback
 env:
   name: prod
@@ -23,8 +26,10 @@ env:
   variables:
     - name: APP_ENV
       value: prod
-    - name: KEYCLOAK_REALM
-      value: app
+    - name: KC_ISSUER_URI
+      value: https://sso.company.com/realms/app
+    - name: KC_CLIENT_ID
+      value: app-client
 monitoring:
   enabled: true
   serviceMonitor:
