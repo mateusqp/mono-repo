@@ -1,0 +1,25 @@
+{{- if .Values.frontend.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "app-chart.componentName" (list . "frontend") }}
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "app-chart.labels" (list . "frontend") | nindent 4 }}
+  {{- with .Values.frontend.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: {{ .Values.frontend.service.type }}
+  {{- with .Values.frontend.service.clusterIP }}
+  clusterIP: {{ . }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.frontend.service.port }}
+      targetPort: {{ .Values.frontend.service.targetPort | default .Values.frontend.service.port }}
+      protocol: TCP
+  selector:
+    {{- include "app-chart.selectorLabels" (list . "frontend") | nindent 4 }}
+{{- end }}

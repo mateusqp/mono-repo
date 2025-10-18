@@ -1,0 +1,31 @@
+{{- if and .Values.backend.enabled .Values.backend.monitoring.serviceMonitor.enabled }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "app-chart.componentName" (list . "backend") }}
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "app-chart.labels" (list . "backend") | nindent 4 }}
+    {{- with .Values.backend.monitoring.serviceMonitor.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.backend.monitoring.serviceMonitor.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  namespaceSelector:
+    matchNames:
+      - {{ .Values.global.namespace | default .Release.Namespace }}
+  selector:
+    matchLabels:
+      {{- include "app-chart.selectorLabels" (list . "backend") | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.backend.monitoring.serviceMonitor.port | default "http" }}
+      {{- with .Values.backend.monitoring.serviceMonitor.interval }}
+      interval: {{ . }}
+      {{- end }}
+      {{- with .Values.backend.monitoring.serviceMonitor.scrapeTimeout }}
+      scrapeTimeout: {{ . }}
+      {{- end }}
+{{- end }}

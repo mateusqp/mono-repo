@@ -1,0 +1,15 @@
+{{- if and .Values.backend.enabled .Values.backend.config.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "app-chart.componentName" (list . "backend-config") }}
+  namespace: {{ .Values.global.namespace | default .Release.Namespace }}
+  labels:
+    {{- include "app-chart.labels" (list . "backend") | nindent 4 }}
+data:
+  {{- if .Values.backend.config.data }}
+  {{- toYaml .Values.backend.config.data | nindent 2 }}
+  {{- else }}
+  {}
+  {{- end }}
+{{- end }}
