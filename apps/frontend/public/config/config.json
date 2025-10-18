@@ -1,0 +1,10 @@
+{
+  "oidc": {
+    "authority": "https://identity.example.com/realms/demo",
+    "clientId": "frontend",
+    "redirectUri": "http://localhost:5173/callback",
+    "silentRedirectUri": "http://localhost:5173/silent-renew",
+    "postLogoutRedirectUri": "http://localhost:5173/",
+    "scope": "openid profile email offline_access"
+  }
+}
