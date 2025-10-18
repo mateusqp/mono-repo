@@ -44,6 +44,14 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- if .Values.frontend.config.enabled }}
+          {{- $mountPath := .Values.frontend.config.mountPath | default "/usr/share/nginx/html/config/config.json" }}
+          volumeMounts:
+            - name: frontend-config
+              mountPath: {{ $mountPath }}
+              subPath: {{ base $mountPath }}
+              readOnly: true
+          {{- end }}
           {{- with .Values.frontend.env }}
           env:
             {{- toYaml . | nindent 12 }}
@@ -71,5 +79,15 @@ spec:
       {{- with .Values.frontend.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.frontend.config.enabled }}
+      {{- $mountPath := .Values.frontend.config.mountPath | default "/usr/share/nginx/html/config/config.json" }}
+      volumes:
+        - name: frontend-config
+          configMap:
+            name: {{ include "app-chart.componentName" (list . "frontend-config") }}
+            items:
+              - key: {{ base $mountPath }}
+                path: {{ base $mountPath }}
       {{- end }}
 {{- end }}
