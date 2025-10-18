@@ -1,0 +1,178 @@
+stages:
+  - build
+  - test
+  - package
+  - push
+  - update-config-repo
+
+variables:
+  HARBOR_REGISTRY: "harbor.example.com/project"
+  IMAGE_TAG: "v${CI_COMMIT_TAG:-0.0.0}-${CI_COMMIT_SHORT_SHA}"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end -Dmaven.repo.local=.m2/repository"
+
+backend:build:
+  stage: build
+  image: maven:3-eclipse-temurin-21
+  cache:
+    key: "maven-${CI_PROJECT_NAME}"
+    paths:
+      - .m2/repository
+    policy: pull-push
+  script:
+    - mvn $MAVEN_CLI_OPTS -f apps/backend/pom.xml clean compile
+
+backend:test:
+  stage: test
+  image: maven:3-eclipse-temurin-21
+  cache:
+    key: "maven-${CI_PROJECT_NAME}"
+    paths:
+      - .m2/repository
+    policy: pull-push
+  needs:
+    - backend:build
+  script:
+    - mvn $MAVEN_CLI_OPTS -f apps/backend/pom.xml test
+
+backend:package:
+  stage: package
+  image: maven:3-eclipse-temurin-21
+  cache:
+    key: "maven-${CI_PROJECT_NAME}"
+    paths:
+      - .m2/repository
+    policy: pull-push
+  needs:
+    - backend:test
+  script:
+    - mvn $MAVEN_CLI_OPTS -f apps/backend/pom.xml package -DskipTests
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - apps/backend/target/*.jar
+
+frontend:build:
+  stage: build
+  image: node:20
+  cache:
+    key: "frontend-${CI_PROJECT_NAME}"
+    paths:
+      - apps/frontend/node_modules/
+    policy: pull-push
+  script:
+    - cd apps/frontend
+    - npm ci
+
+frontend:test:
+  stage: test
+  image: node:20
+  cache:
+    key: "frontend-${CI_PROJECT_NAME}"
+    paths:
+      - apps/frontend/node_modules/
+    policy: pull-push
+  needs:
+    - frontend:build
+  script:
+    - cd apps/frontend
+    - npm test -- --ci --watch=false
+
+frontend:package:
+  stage: package
+  image: node:20
+  cache:
+    key: "frontend-${CI_PROJECT_NAME}"
+    paths:
+      - apps/frontend/node_modules/
+    policy: pull-push
+  needs:
+    - frontend:test
+  script:
+    - cd apps/frontend
+    - npm run build
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - apps/frontend/dist
+
+build-and-push-images:
+  stage: push
+  image: docker:24
+  services:
+    - docker:24-dind
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  needs:
+    - job: backend:package
+      artifacts: true
+    - job: frontend:package
+      artifacts: true
+  script:
+    - '[[ -n "$HARBOR_USER" && -n "$HARBOR_PASSWORD" ]] || (echo "HARBOR_USER/HARBOR_PASSWORD must be set" >&2; exit 1)'
+    - echo "$HARBOR_PASSWORD" | docker login -u "$HARBOR_USER" --password-stdin "$HARBOR_REGISTRY"
+    - docker build -t "$HARBOR_REGISTRY/app-backend:${IMAGE_TAG}" -f apps/backend/Dockerfile apps/backend
+    - docker push "$HARBOR_REGISTRY/app-backend:${IMAGE_TAG}"
+    - docker build -t "$HARBOR_REGISTRY/app-frontend:${IMAGE_TAG}" -f apps/frontend/Dockerfile apps/frontend
+    - docker push "$HARBOR_REGISTRY/app-frontend:${IMAGE_TAG}"
+
+update-config-repo:
+  stage: update-config-repo
+  image: alpine:3.20
+  variables:
+    GIT_STRATEGY: none
+  needs:
+    - build-and-push-images
+  before_script:
+    - apk add --no-cache git python3 py3-pip curl
+    - pip install --no-cache-dir ruamel.yaml
+  script:
+    - '[ -n "$CONFIG_REPO_URL" ] || (echo "CONFIG_REPO_URL must be set" >&2; exit 1)'
+    - git clone "$CONFIG_REPO_URL" config-repo
+    - cd config-repo
+    - export CONFIG_REPO_BRANCH="${CONFIG_REPO_BRANCH:-main}"
+    - git checkout "$CONFIG_REPO_BRANCH"
+    - export UPDATE_BRANCH="update-images-${CI_COMMIT_SHORT_SHA:-${CI_PIPELINE_ID}}"
+    - git checkout -B "$UPDATE_BRANCH"
+    - python3 <<'PY'
+import os
+from pathlib import Path
+from ruamel.yaml import YAML
+
+yaml = YAML()
+image_tag = os.environ.get('IMAGE_TAG')
+repo = os.environ.get('HARBOR_REGISTRY')
+values_dir = Path('environments')
+if not values_dir.exists():
+    raise SystemExit('environments directory not found in config repo')
+for values_file in values_dir.glob('*/values.yaml'):
+    data = yaml.load(values_file.read_text())
+    backend = data.setdefault('backend', {}).setdefault('image', {})
+    frontend = data.setdefault('frontend', {}).setdefault('image', {})
+    backend['repository'] = f"{repo}/app-backend"
+    backend['tag'] = image_tag
+    frontend['repository'] = f"{repo}/app-frontend"
+    frontend['tag'] = image_tag
+    with values_file.open('w') as fh:
+        yaml.dump(data, fh)
+PY
+    - |
+      if git diff --quiet; then
+        echo "No changes to commit"
+        exit 0
+      fi
+    - git config user.name "ci-bot"
+    - git config user.email "ci-bot@example.com"
+    - git commit -am "chore: update image tags to ${IMAGE_TAG}"
+    - git push origin "$UPDATE_BRANCH"
+    - |
+      export GITLAB_API_URL="${GITLAB_API_URL:-https://gitlab.com/api/v4}"
+      if [ -n "$GITLAB_TOKEN" ] && [ -n "$CONFIG_REPO_PROJECT_ID" ]; then
+        curl --fail --header "PRIVATE-TOKEN: $GITLAB_TOKEN" \
+          --data-urlencode "source_branch=$UPDATE_BRANCH" \
+          --data-urlencode "target_branch=$CONFIG_REPO_BRANCH" \
+          --data-urlencode "title=chore: update image tags to ${IMAGE_TAG}" \
+          "$GITLAB_API_URL/projects/${CONFIG_REPO_PROJECT_ID}/merge_requests" || echo "Merge request creation skipped"
+      else
+        echo "GITLAB_TOKEN or CONFIG_REPO_PROJECT_ID not set; skipping MR creation"
+      fi
