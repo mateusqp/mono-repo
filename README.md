@@ -46,9 +46,9 @@ The **GitLab Runner** builds and pushes Docker images to **Harbor**, then commit
 | Env  | Namespace | Backend FQDN | Frontend FQDN | Keycloak Realm |
 |------|------------|--------------|----------------|----------------|
 | local | `app-local` | localhost via docker-compose | localhost | shared realm |
-| des | `app-des` | `https://identifica.tkg-des.nuvem.unicamp.br` | same host | shared realm |
-| hom | `app-hom` | `https://identifica.tkg-hom.nuvem.unicamp.br` | same host | shared realm |
-| prod | `app-prod` | `https://identifica.unicamp.br` | same host | shared realm |
+| des | `app-des` | `https://app.tkg-des.nuvem.unicamp.br` | same host | shared realm |
+| hom | `app-hom` | `https://app.tkg-hom.nuvem.unicamp.br` | same host | shared realm |
+| prod | `app-prod` | `https://app.unicamp.br` | same host | shared realm |
 
 ---
 
