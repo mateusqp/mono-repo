@@ -12,6 +12,16 @@ This directory will host the Kubernetes Helm chart that deploys the backend and 
 
 Populate each file with environment-specific overrides as the project evolves.
 
+## Templated values
+
+Environment variable entries in `backend.env` and `frontend.env` support templated strings via Helm's [`tpl` function](https://helm.sh/docs/chart_template_guide/functions_and_pipelines/#tpl). This allows values files to reference release metadata or other template helpers when defining environment variables.
+
+Preview the behavior with the example overrides in `tests/env-tpl-values.yaml`:
+
+```sh
+helm template demo ops/helm/app-chart -f ops/helm/app-chart/tests/env-tpl-values.yaml
+```
+
 ## Frontend runtime configuration
 
 The chart can project a ConfigMap into the frontend container for runtime configuration files.
