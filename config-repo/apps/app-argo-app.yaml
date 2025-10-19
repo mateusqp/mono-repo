@@ -5,10 +5,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: git@github.com:example-org/config-repo.git
-    targetRevision: main
-    path: environments/local
+  sources:
+    - repoURL: git@github.com:example-org/mono-repo.git
+      targetRevision: main
+      path: ops/helm/app-chart
+      helm:
+        valueFiles:
+          - $values/environments/local/values.yaml
+    - repoURL: git@github.com:example-org/config-repo.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: app-local
@@ -26,10 +32,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: git@github.com:example-org/config-repo.git
-    targetRevision: main
-    path: environments/des
+  sources:
+    - repoURL: git@github.com:example-org/mono-repo.git
+      targetRevision: main
+      path: ops/helm/app-chart
+      helm:
+        valueFiles:
+          - $values/environments/des/values.yaml
+    - repoURL: git@github.com:example-org/config-repo.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: app-des
@@ -47,10 +59,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: git@github.com:example-org/config-repo.git
-    targetRevision: main
-    path: environments/hom
+  sources:
+    - repoURL: git@github.com:example-org/mono-repo.git
+      targetRevision: main
+      path: ops/helm/app-chart
+      helm:
+        valueFiles:
+          - $values/environments/hom/values.yaml
+    - repoURL: git@github.com:example-org/config-repo.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: app-hom
@@ -68,10 +86,16 @@ metadata:
   namespace: argocd
 spec:
   project: default
-  source:
-    repoURL: git@github.com:example-org/config-repo.git
-    targetRevision: main
-    path: environments/prod
+  sources:
+    - repoURL: git@github.com:example-org/mono-repo.git
+      targetRevision: main
+      path: ops/helm/app-chart
+      helm:
+        valueFiles:
+          - $values/environments/prod/values.yaml
+    - repoURL: git@github.com:example-org/config-repo.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: app-prod
