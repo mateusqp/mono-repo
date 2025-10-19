@@ -47,7 +47,7 @@ spec:
           {{- if or .Values.backend.env .Values.backend.keycloak.enabled }}
           env:
             {{- with .Values.backend.env }}
-            {{- toYaml . | nindent 12 }}
+            {{- (tpl (toYaml .) $) | nindent 12 }}
             {{- end }}
             {{- if .Values.backend.keycloak.enabled }}
             - name: KC_ISSUER_URI
