@@ -1,38 +1,45 @@
-images:
-  backend:
+global:
+  namespace: app-prod
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: app.company.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            component: frontend
+            port: 80
+  tls:
+    - secretName: app-prod-tls
+      hosts:
+        - app.company.com
+
+backend:
+  image:
     repository: ghcr.io/company/app-backend
     tag: prod-latest
-  frontend:
-    repository: ghcr.io/company/app-frontend
-    tag: prod-latest
-ingress:
-  className: nginx
-  host: app.company.com
-  tls:
+  keycloak:
     enabled: true
-    secretName: app-prod-tls
-keycloak:
-  baseUrl: https://sso.company.com
-  realm: app
-  clientId: app-client
-  issuerUri: https://sso.company.com/realms/app
-  audience: ""
-  jwkSetUri: ""
-  callbackUrl: https://app.company.com/oauth/callback
-env:
-  name: prod
-  namespace: app-prod
-  fqdn: app.company.com
-  variables:
+    baseUrl: https://sso.company.com
+    realm: app
+    clientId: app-client
+    issuerUri: https://sso.company.com/realms/app
+    audience: ""
+    jwkSetUri: ""
+    callbackUrl: https://app.company.com/oauth/callback
+  env:
     - name: APP_ENV
       value: prod
-    - name: KC_ISSUER_URI
-      value: https://sso.company.com/realms/app
-    - name: KC_CLIENT_ID
-      value: app-client
-monitoring:
-  enabled: true
-  serviceMonitor:
-    namespace: monitoring
-    labels:
-      release: kube-prometheus-stack
+  monitoring:
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+
+frontend:
+  image:
+    repository: ghcr.io/company/app-frontend
+    tag: prod-latest

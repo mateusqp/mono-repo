@@ -29,7 +29,7 @@ Sempre mantenha as branches sincronizadas na ordem `DES → HOM → PROD`, garan
 
 ## Atualização de tags pelo pipeline
 
-O pipeline de entrega contínua observa a branch `main`. Quando uma nova imagem é publicada, ele atualiza automaticamente as chaves `images.*.tag` nos arquivos `values.yaml` correspondentes ao ambiente alvo e cria um Pull Request. Após o merge:
+O pipeline de entrega contínua observa a branch `main`. Quando uma nova imagem é publicada, ele atualiza automaticamente as chaves `backend.image.tag` e `frontend.image.tag` nos arquivos `values.yaml` correspondentes ao ambiente alvo e cria um Pull Request. Após o merge:
 
 - O pipeline executa um job que abre um commit atualizando o ambiente seguinte com a nova tag, preparando o próximo passo da promoção.
 - O Argo CD detecta a alteração e sincroniza o ambiente configurado com `selfHeal` e `prune` ativos, garantindo que o estado do cluster reflita o repositório.

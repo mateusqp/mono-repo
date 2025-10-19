@@ -1,38 +1,45 @@
-images:
-  backend:
+global:
+  namespace: app-des
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: app.des.company.internal
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            component: frontend
+            port: 80
+  tls:
+    - secretName: app-des-tls
+      hosts:
+        - app.des.company.internal
+
+backend:
+  image:
     repository: ghcr.io/company/app-backend
     tag: des-latest
-  frontend:
-    repository: ghcr.io/company/app-frontend
-    tag: des-latest
-ingress:
-  className: nginx
-  host: app.des.company.internal
-  tls:
+  keycloak:
     enabled: true
-    secretName: app-des-tls
-keycloak:
-  baseUrl: https://sso.des.company.internal
-  realm: app-des
-  clientId: app-client
-  issuerUri: https://sso.des.company.internal/realms/app-des
-  audience: ""
-  jwkSetUri: ""
-  callbackUrl: https://app.des.company.internal/oauth/callback
-env:
-  name: des
-  namespace: app-des
-  fqdn: app.des.company.internal
-  variables:
+    baseUrl: https://sso.des.company.internal
+    realm: app-des
+    clientId: app-client
+    issuerUri: https://sso.des.company.internal/realms/app-des
+    audience: ""
+    jwkSetUri: ""
+    callbackUrl: https://app.des.company.internal/oauth/callback
+  env:
     - name: APP_ENV
       value: des
-    - name: KC_ISSUER_URI
-      value: https://sso.des.company.internal/realms/app-des
-    - name: KC_CLIENT_ID
-      value: app-client
-monitoring:
-  enabled: true
-  serviceMonitor:
-    namespace: monitoring
-    labels:
-      release: kube-prometheus-stack
+  monitoring:
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+
+frontend:
+  image:
+    repository: ghcr.io/company/app-frontend
+    tag: des-latest
