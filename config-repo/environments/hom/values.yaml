@@ -1,38 +1,45 @@
-images:
-  backend:
+global:
+  namespace: app-hom
+
+ingress:
+  enabled: true
+  className: nginx
+  hosts:
+    - host: app.hom.company.internal
+      paths:
+        - path: /
+          pathType: Prefix
+          service:
+            component: frontend
+            port: 80
+  tls:
+    - secretName: app-hom-tls
+      hosts:
+        - app.hom.company.internal
+
+backend:
+  image:
     repository: ghcr.io/company/app-backend
     tag: hom-latest
-  frontend:
-    repository: ghcr.io/company/app-frontend
-    tag: hom-latest
-ingress:
-  className: nginx
-  host: app.hom.company.internal
-  tls:
+  keycloak:
     enabled: true
-    secretName: app-hom-tls
-keycloak:
-  baseUrl: https://sso.hom.company.internal
-  realm: app-hom
-  clientId: app-client
-  issuerUri: https://sso.hom.company.internal/realms/app-hom
-  audience: ""
-  jwkSetUri: ""
-  callbackUrl: https://app.hom.company.internal/oauth/callback
-env:
-  name: hom
-  namespace: app-hom
-  fqdn: app.hom.company.internal
-  variables:
+    baseUrl: https://sso.hom.company.internal
+    realm: app-hom
+    clientId: app-client
+    issuerUri: https://sso.hom.company.internal/realms/app-hom
+    audience: ""
+    jwkSetUri: ""
+    callbackUrl: https://app.hom.company.internal/oauth/callback
+  env:
     - name: APP_ENV
       value: hom
-    - name: KC_ISSUER_URI
-      value: https://sso.hom.company.internal/realms/app-hom
-    - name: KC_CLIENT_ID
-      value: app-client
-monitoring:
-  enabled: true
-  serviceMonitor:
-    namespace: monitoring
-    labels:
-      release: kube-prometheus-stack
+  monitoring:
+    serviceMonitor:
+      enabled: true
+      labels:
+        release: kube-prometheus-stack
+
+frontend:
+  image:
+    repository: ghcr.io/company/app-frontend
+    tag: hom-latest

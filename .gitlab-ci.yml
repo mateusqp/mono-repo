@@ -147,6 +147,7 @@ if not values_dir.exists():
     raise SystemExit('environments directory not found in config repo')
 for values_file in values_dir.glob('*/values.yaml'):
     data = yaml.load(values_file.read_text())
+    data.pop('images', None)
     backend = data.setdefault('backend', {}).setdefault('image', {})
     frontend = data.setdefault('frontend', {}).setdefault('image', {})
     backend['repository'] = f"{repo}/app-backend"
