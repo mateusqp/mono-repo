@@ -1,0 +1,253 @@
+{
+  "realm": "app-local",
+  "enabled": true,
+  "displayName": "Aplicação Local",
+  "loginTheme": "keycloak",
+  "registrationAllowed": false,
+  "rememberMe": true,
+  "resetPasswordAllowed": true,
+  "clients": [
+    {
+      "clientId": "app-frontend",
+      "name": "Frontend local",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "pkceEnforce": true,
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:5173/*"
+      },
+      "redirectUris": [
+        "http://localhost:5173/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5173"
+      ],
+      "defaultClientScopes": [
+        "web-origins",
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    },
+    {
+      "clientId": "app-backend",
+      "name": "Backend local",
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "backend-secret",
+      "serviceAccountsEnabled": false,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "bearerOnly": true,
+      "authorizationServicesEnabled": false,
+      "redirectUris": [],
+      "webOrigins": [],
+      "protocolMappers": [
+        {
+          "name": "app-backend audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "app-backend",
+            "id.token.claim": "false",
+            "access.token.claim": "true"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "profile",
+        "roles",
+        "email"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "offline_access",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "app-admin",
+        "description": "Administrador da aplicação local",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "app-local"
+      }
+    ]
+  },
+  "defaultDefaultClientScopes": [
+    "web-origins",
+    "profile",
+    "roles",
+    "email"
+  ],
+  "defaultOptionalClientScopes": [
+    "address",
+    "phone",
+    "offline_access",
+    "microprofile-jwt"
+  ],
+  "users": [
+    {
+      "username": "ana.souza",
+      "email": "ana.souza@example.com",
+      "firstName": "Ana",
+      "lastName": "Souza",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Senha123",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "cpf": [
+          "11122233344"
+        ],
+        "matricula": [
+          "0"
+        ],
+        "unidade": [
+          "DETIC"
+        ]
+      },
+      "realmRoles": [
+        "default-roles-app-local"
+      ]
+    },
+    {
+      "username": "bruno.lima",
+      "email": "bruno.lima@example.com",
+      "firstName": "Bruno",
+      "lastName": "Lima",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Senha123",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "cpf": [
+          "22233344455"
+        ],
+        "matricula": [
+          "1"
+        ],
+        "unidade": [
+          "DGRH"
+        ]
+      },
+      "realmRoles": [
+        "default-roles-app-local"
+      ]
+    },
+    {
+      "username": "carla.mendes",
+      "email": "carla.mendes@example.com",
+      "firstName": "Carla",
+      "lastName": "Mendes",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Senha123",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "cpf": [
+          "33344455566"
+        ],
+        "matricula": [
+          "2"
+        ],
+        "unidade": [
+          "Instituto de Artes"
+        ]
+      },
+      "realmRoles": [
+        "default-roles-app-local"
+      ]
+    },
+    {
+      "username": "diego.oliveira",
+      "email": "diego.oliveira@example.com",
+      "firstName": "Diego",
+      "lastName": "Oliveira",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Senha123",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "cpf": [
+          "44455566677"
+        ],
+        "matricula": [
+          "3"
+        ],
+        "unidade": [
+          "Instituto de Computação"
+        ]
+      },
+      "realmRoles": [
+        "default-roles-app-local"
+      ]
+    },
+    {
+      "username": "app-admin",
+      "email": "app-admin@example.com",
+      "firstName": "Administrador",
+      "lastName": "Local",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Senha123",
+          "temporary": false
+        }
+      ],
+      "attributes": {
+        "cpf": [
+          "55566677788"
+        ],
+        "matricula": [
+          "4"
+        ],
+        "unidade": [
+          "Reitoria"
+        ]
+      },
+      "realmRoles": [
+        "default-roles-app-local",
+        "app-admin"
+      ]
+    }
+  ]
+}
