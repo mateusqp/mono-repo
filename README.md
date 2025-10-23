@@ -17,7 +17,7 @@ The setup targets four environments — `local`, `des`, `hom`, and `prod` — us
    ```bash
    cp .env.example .env
    ```
-2. Start the full stack (PostgreSQL + Spring Boot backend + Vite dev server) – the first run will build the backend image and install frontend dependencies:
+2. Start the full stack (PostgreSQL + Keycloak + Spring Boot backend + Vite dev server) – the first run will build the backend image and install frontend dependencies:
    ```bash
    docker compose up --build
    # or use the classic syntax if you are on docker-compose v1
@@ -25,15 +25,28 @@ The setup targets four environments — `local`, `des`, `hom`, and `prod` — us
    ```
 3. Access the services once the containers report `healthy`/`Ready`:
    - Frontend (Vite dev server): http://localhost:5173
-   - Backend (Spring Boot): http://localhost:8080 (health check at `/actuator/health`)
+   - Backend (Spring Boot): http://localhost:8081 (health check at `/actuator/health`)
+   - Keycloak: http://localhost:8080 (Admin Console at `/admin`)
    - PostgreSQL: localhost:5432 (user/password from `.env`)
+
+   Default Keycloak credentials:
+   - Administrator: `admin` / `admin` (configurable via `KEYCLOAK_ADMIN*` in `.env`)
+   - Application users (password `Senha123`):
+     - `ana.souza` – CPF `11122233344`, matrícula `0`, unidade `DETIC`
+     - `bruno.lima` – CPF `22233344455`, matrícula `1`, unidade `DGRH`
+     - `carla.mendes` – CPF `33344455566`, matrícula `2`, unidade `Instituto de Artes`
+     - `diego.oliveira` – CPF `44455566677`, matrícula `3`, unidade `Instituto de Computação`
+     - `app-admin` – CPF `55566677788`, matrícula `4`, unidade `Reitoria`, papel `app-admin`
 
 ### OIDC login flow
 
-- The default `.env.example` points to the shared development realm hosted at `https://sso-des.nuvem.unicamp.br/realms/app` with the public client `app-frontend`.
-- When you click "Sign in" in the frontend, you will be redirected to that Keycloak instance. Use the credentials provisioned by the identity team for the shared realm.
-- If you need to test with another realm or a local Keycloak instance, update the OIDC variables in `.env` (`KC_ISSUER_URI`, `KC_CLIENT_ID`, and the `VITE_OIDC_*` entries) and restart the stack.
-- For scenarios without Keycloak access, you can temporarily mock the flow by serving a static `/config/config.json` in `apps/frontend/public/config/` with the necessary OIDC values and using test JWTs issued by tools such as [Mock IDP](https://www.mockidp.com/). Remember to revert to the shared realm before committing changes.
+- The default `.env.example` configures the containers to use the bundled Keycloak realm imported from [`ops/keycloak/realm-local.json`](./ops/keycloak/realm-local.json). The issuer is `http://keycloak:8080/realms/app-local`, matching both the backend resource server and the frontend PKCE client.
+- Redirect URIs exposed by the realm:
+  - Callback: `http://localhost:5173/callback`
+  - Silent renew: `http://localhost:5173/silent-renew`
+  - Logout: `http://localhost:5173/`
+- Update the OIDC variables in `.env` (`KC_ISSUER_URI`, `KC_CLIENT_ID`, `KC_AUDIENCE`, and the `VITE_OIDC_*` entries) if you need to point to another realm (e.g., a shared environment) and restart the stack.
+- For scenarios without Keycloak access, you can temporarily mock the flow by serving a static `/config/config.json` in `apps/frontend/public/config/` with the necessary OIDC values and using test JWTs issued by tools such as [Mock IDP](https://www.mockidp.com/). Remember to revert to the supported realm before committing changes.
 
 To stop the environment and remove the containers/volumes:
 ```bash
@@ -81,7 +94,7 @@ The **GitLab Runner** builds and pushes Docker images to **Harbor**, then commit
 
 | Env  | Namespace | Backend FQDN | Frontend FQDN | Keycloak Realm |
 |------|------------|--------------|----------------|----------------|
-| local | `app-local` | localhost via docker-compose | localhost | shared realm |
+| local | `app-local` | http://localhost:8081 | http://localhost:5173 | http://localhost:8080/realms/app-local |
 | des | `app-des` | `https://app.tkg-des.nuvem.unicamp.br` | same host | shared realm |
 | hom | `app-hom` | `https://app.tkg-hom.nuvem.unicamp.br` | same host | shared realm |
 | prod | `app-prod` | `https://app.unicamp.br` | same host | shared realm |

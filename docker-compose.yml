@@ -15,6 +15,21 @@ services:
       timeout: 5s
       retries: 5
 
+  keycloak:
+    image: quay.io/keycloak/keycloak
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_HTTP_RELATIVE_PATH: /
+      KC_PROXY: edge
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./ops/keycloak/realm-local.json:/opt/keycloak/data/import/realm-local.json:ro
+    depends_on:
+      - postgres
+
   backend:
     build:
       context: ./apps/backend
@@ -33,6 +48,7 @@ services:
       - "${BACKEND_PORT}:8080"
     depends_on:
       - postgres
+      - keycloak
 
   frontend:
     image: node:20-alpine
@@ -54,6 +70,7 @@ services:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     depends_on:
       - backend
+      - keycloak
 
 volumes:
   postgres-data:

@@ -17,13 +17,19 @@ The development server listens on port `5173` by default. Override OIDC settings
 variables prefixed with `VITE_` in a `.env.local` file or shell exports:
 
 ```bash
-VITE_OIDC_AUTHORITY="https://identity.example.com/realms/demo"
-VITE_OIDC_CLIENT_ID="frontend"
+VITE_OIDC_AUTHORITY="http://keycloak:8080/realms/app-local"
+VITE_OIDC_CLIENT_ID="app-frontend"
 VITE_OIDC_REDIRECT_URI="http://localhost:5173/callback"
 VITE_OIDC_SILENT_REDIRECT_URI="http://localhost:5173/silent-renew"
 VITE_OIDC_POST_LOGOUT_REDIRECT_URI="http://localhost:5173/"
-VITE_OIDC_SCOPE="openid profile email offline_access"
+VITE_OIDC_SCOPE="openid profile email"
 ```
+
+When running through `docker compose` the Keycloak realm imported from
+[`ops/keycloak/realm-local.json`](../../ops/keycloak/realm-local.json) already contains a public
+client named `app-frontend` with PKCE enforcement and the redirect URIs above. The default users can
+sign in with password `Senha123`; see the repository root [`README.md`](../../README.md) for the full list of
+test accounts and attributes (`cpf`, `matricula`, `unidade`).
 
 ## Runtime configuration
 
