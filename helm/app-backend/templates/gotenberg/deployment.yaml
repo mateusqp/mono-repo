@@ -1,0 +1,23 @@
+{{- if .Values.gotenberg.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-gotenberg
+  namespace: {{ .Values.global.namespace }}
+spec:
+  replicas: {{ .Values.gotenberg.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}-gotenberg
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}-gotenberg
+    spec:
+      containers:
+      - name: gotenberg
+        image: {{ .Values.gotenberg.image.repository }}:{{ .Values.gotenberg.image.tag }}
+        ports:
+        - containerPort: 3000
+        resources: {{- toYaml .Values.gotenberg.resources | nindent 10 }}
+{{- end }}

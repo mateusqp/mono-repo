@@ -1,0 +1,71 @@
+global:
+  namespace: app
+  registry: harbor.example.com/project
+  environment: dev
+  domain: app.tkg-des.nuvem.unicamp.br
+
+image:
+  repository: app-backend
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: registry-pull-secret
+
+replicas: 1
+
+springProfile: dev
+
+service:
+  type: NodePort
+  port: 8000
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  path: /api
+  pathType: Prefix
+  tls:
+    enabled: true
+
+resources:
+  requests:
+    memory: "512Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "500m"
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsUser: 1000
+  runAsNonRoot: true
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+
+gotenberg:
+  enabled: true
+  image:
+    repository: gotenberg/gotenberg
+    tag: "8"
+  replicas: 1
+  service:
+    port: 3000
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+vault:
+  enabled: true
+  mount: app-des
+  path: app/backend
+  refreshAfter: 1h

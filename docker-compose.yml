@@ -15,6 +15,25 @@ services:
       timeout: 5s
       retries: 5
 
+  keycloak:
+    image: quay.io/keycloak/keycloak:23.0
+    command: start-dev --import-realm
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_HOSTNAME_STRICT: false
+      KC_HTTP_ENABLED: true
+    volumes:
+      - ./config/keycloak:/opt/keycloak/data/import
+      - keycloak-data:/opt/keycloak/data
+    ports:
+      - "${KEYCLOAK_PORT}:8080"
+
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    ports:
+      - "3000:3000"
+
   backend:
     build:
       context: ./apps/backend
@@ -29,10 +48,14 @@ services:
       KC_ALLOWED_ORIGINS: ${KC_ALLOWED_ORIGINS}
       KC_ALLOWED_METHODS: ${KC_ALLOWED_METHODS}
       KC_ALLOWED_HEADERS: ${KC_ALLOWED_HEADERS}
+      GOTENBERG_URL: http://gotenberg:3000
     ports:
       - "${BACKEND_PORT}:8080"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+      gotenberg:
+        condition: service_started
 
   frontend:
     image: node:20-alpine
@@ -54,7 +77,9 @@ services:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     depends_on:
       - backend
+      - keycloak
 
 volumes:
   postgres-data:
+  keycloak-data:
   frontend-node-modules:

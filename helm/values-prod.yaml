@@ -1,0 +1,49 @@
+global:
+  namespace: app
+  registry: registry.nuvem.unicamp.br/project/app
+  environment: prod
+  domain: app.unicamp.br
+
+vault:
+  mount: project-prod
+
+backend:
+  enabled: true
+frontend:
+  enabled: true
+database:
+  enabled: false
+
+app-backend:
+  image:
+    tag: "latest"
+  replicas: 2
+  springProfile: prod
+  resources:
+    requests:
+      memory: "1Gi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "1000m"
+  vault:
+    mount: project-prod
+    path: app/backend
+
+app-frontend:
+  image:
+    tag: "latest"
+  replicas: 2
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+  ingress:
+    tls:
+      enabled: true
+  vault:
+    mount: project-prod
+    path: app/frontend

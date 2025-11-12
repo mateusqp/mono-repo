@@ -1,25 +1,14 @@
-import { useAuth } from '../auth/AuthProvider.tsx';
+import { useKeycloak } from '@react-keycloak/web';
 
 export function ProtectedPage(): JSX.Element {
-  const { user } = useAuth();
+  const { keycloak } = useKeycloak();
 
   return (
     <section className="card">
-      <h1>Protected Resource</h1>
-      <p>You have successfully authenticated and can view protected content.</p>
-
-      {user && (
-        <div className="token-info">
-          <h2>Token details</h2>
-          <dl>
-            <dt>Access token expires at</dt>
-            <dd>
-              {user.expires_at ? new Date(user.expires_at * 1000).toLocaleString() : 'Unknown'}
-            </dd>
-            <dt>ID token</dt>
-            <dd className="token-preview">{user.id_token ?? 'Not issued'}</dd>
-          </dl>
-        </div>
+      <h1>Página Protegida</h1>
+      <p>Esta página é acessível apenas para usuários autenticados.</p>
+      {keycloak.tokenParsed && (
+        <p>Bem-vindo(a), {keycloak.tokenParsed.name}!</p>
       )}
     </section>
   );

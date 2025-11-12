@@ -1,23 +1,24 @@
 import { BrowserRouter, Link, Route, Routes } from 'react-router-dom';
-import { useAuth } from './auth/AuthProvider.tsx';
+import { useKeycloak } from '@react-keycloak/web';
 import { HomePage } from './routes/HomePage.tsx';
-import { CallbackPage } from './routes/CallbackPage.tsx';
-import { SilentRenewPage } from './routes/SilentRenewPage.tsx';
+import { LoginPage } from './routes/LoginPage.tsx';
 import { ProtectedPage } from './routes/ProtectedPage.tsx';
+import { PublicPage } from './routes/PublicPage.tsx';
 import { ProtectedRoute } from './components/ProtectedRoute.tsx';
 import './App.css';
 
 function Navigation(): JSX.Element {
-  const { isAuthenticated } = useAuth();
+  const { keycloak } = useKeycloak();
 
   return (
     <header className="app-header">
       <nav>
-        <Link to="/">Home</Link>
-        <Link to="/protected">Protected</Link>
+        <Link to="/">Início</Link>
+        <Link to="/public">Pública</Link>
+        <Link to="/protected">Protegida</Link>
       </nav>
-      <span className={`status ${isAuthenticated ? 'online' : 'offline'}`}>
-        {isAuthenticated ? 'Authenticated' : 'Anonymous'}
+      <span className={`status ${keycloak.authenticated ? 'online' : 'offline'}`}>
+        {keycloak.authenticated ? 'Autenticado' : 'Anônimo'}
       </span>
     </header>
   );
@@ -31,6 +32,8 @@ export default function App(): JSX.Element {
         <main>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/public" element={<PublicPage />} />
             <Route
               path="/protected"
               element={
@@ -39,8 +42,6 @@ export default function App(): JSX.Element {
                 </ProtectedRoute>
               }
             />
-            <Route path="/callback" element={<CallbackPage />} />
-            <Route path="/silent-renew" element={<SilentRenewPage />} />
           </Routes>
         </main>
       </div>

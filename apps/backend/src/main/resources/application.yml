@@ -15,7 +15,17 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+      org:
+        hibernate:
+          envers:
+            audit_table_suffix: _aud
+            revision_field_name: rev
+            revision_type_field_name: revtype
+            store_data_at_delete: true
     open-in-view: false
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
   security:
     oauth2:
       resourceserver:
@@ -38,6 +48,9 @@ management:
   metrics:
     tags:
       application: ${spring.application.name}
+
+gotenberg:
+  url: ${GOTENBERG_URL:http://localhost:3000}
 
 app:
   security:

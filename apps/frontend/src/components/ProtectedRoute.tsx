@@ -1,16 +1,16 @@
 import { PropsWithChildren, useEffect } from 'react';
-import { useAuth } from '../auth/AuthProvider.tsx';
+import { useKeycloak } from '@react-keycloak/web';
 
 export function ProtectedRoute({ children }: PropsWithChildren): JSX.Element | null {
-  const { isAuthenticated, isLoading, signIn } = useAuth();
+  const { keycloak, initialized } = useKeycloak();
 
   useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      void signIn();
+    if (initialized && !keycloak.authenticated) {
+      keycloak.login();
     }
-  }, [isAuthenticated, isLoading, signIn]);
+  }, [initialized, keycloak]);
 
-  if (isAuthenticated) {
+  if (keycloak.authenticated) {
     return <>{children}</>;
   }
 

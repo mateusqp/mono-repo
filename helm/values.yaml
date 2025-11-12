@@ -1,0 +1,18 @@
+global:
+  namespace: app
+  registry: registry.nuvem.unicamp.br/project/app
+  environment: dev
+  imagePullSecrets:
+    - name: registry-pull-secret
+
+vault:
+  mount: project-des
+
+backend:
+  enabled: true
+
+frontend:
+  enabled: true
+
+database:
+  enabled: true

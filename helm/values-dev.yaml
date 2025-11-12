@@ -1,0 +1,63 @@
+global:
+  namespace: app
+  registry: registry.nuvem.unicamp.br/project/app
+  environment: dev
+  domain: app.tkg-des.nuvem.unicamp.br
+
+vault:
+  mount: project-des
+
+backend:
+  enabled: true
+frontend:
+  enabled: true
+database:
+  enabled: true
+
+app-backend:
+  image:
+    tag: "latest"
+  replicas: 1
+  springProfile: dev
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "800Mi"
+      cpu: "500m"
+  vault:
+    mount: project-des
+    path: app/backend
+
+app-frontend:
+  image:
+    tag: "latest"
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "200m"
+  ingress:
+    tls:
+      enabled: false
+  vault:
+    mount: project-des
+    path: app/frontend
+
+app-database:
+  enabled: true
+  storage:
+    size: "1Gi"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  vault:
+    mount: project-des
+    path: app/database

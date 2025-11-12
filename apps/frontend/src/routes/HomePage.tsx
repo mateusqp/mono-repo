@@ -1,42 +1,41 @@
 import { Link } from 'react-router-dom';
-import { useAuth } from '../auth/AuthProvider.tsx';
+import { useKeycloak } from '@react-keycloak/web';
 
 export function HomePage(): JSX.Element {
-  const { isAuthenticated, user, signIn, signOut } = useAuth();
+  const { keycloak } = useKeycloak();
 
   return (
     <section className="card">
-      <h1>React OIDC Example</h1>
+      <h1>Exemplo React Keycloak</h1>
       <p>
-        This example demonstrates how to authenticate a Vite + React application using{' '}
-        <code>oidc-client-ts</code>.
+        Este exemplo demonstra como autenticar uma aplicação Vite + React usando Keycloak.
       </p>
 
       <div className="actions">
-        {isAuthenticated ? (
-          <button type="button" onClick={() => void signOut()}>
-            Sign out
+        {keycloak.authenticated ? (
+          <button type="button" onClick={() => keycloak.logout()}>
+            Sair
           </button>
         ) : (
-          <button type="button" onClick={() => void signIn()}>
-            Sign in
+          <button type="button" onClick={() => keycloak.login()}>
+            Entrar
           </button>
         )}
         <Link to="/protected" className="link-button">
-          Go to protected page
+          Ir para página protegida
         </Link>
       </div>
 
-      {isAuthenticated && user && (
+      {keycloak.authenticated && keycloak.tokenParsed && (
         <article className="user-details">
-          <h2>Current user</h2>
+          <h2>Usuário atual</h2>
           <dl>
-            <dt>Subject</dt>
-            <dd>{user.profile.sub}</dd>
-            <dt>Name</dt>
-            <dd>{user.profile.name ?? 'N/A'}</dd>
+            <dt>ID</dt>
+            <dd>{keycloak.tokenParsed.sub}</dd>
+            <dt>Nome</dt>
+            <dd>{keycloak.tokenParsed.name ?? 'N/A'}</dd>
             <dt>Email</dt>
-            <dd>{user.profile.email ?? 'N/A'}</dd>
+            <dd>{keycloak.tokenParsed.email ?? 'N/A'}</dd>
           </dl>
         </article>
       )}

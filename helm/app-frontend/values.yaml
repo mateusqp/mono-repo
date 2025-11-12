@@ -1,0 +1,53 @@
+global:
+  namespace: app
+  registry: harbor.example.com/project
+  environment: dev
+  domain: app.tkg-des.nuvem.unicamp.br
+
+image:
+  repository: app-frontend
+  tag: "latest"
+  pullPolicy: Always
+
+imagePullSecrets:
+  - name: registry-pull-secret
+
+replicas: 1
+
+service:
+  type: ClusterIP
+  port: 8080
+  targetPort: 8080
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt
+  path: /
+  pathType: Prefix
+  tls:
+    enabled: true
+
+resources:
+  requests:
+    memory: "64Mi"
+    cpu: "50m"
+  limits:
+    memory: "128Mi"
+    cpu: "200m"
+
+securityContext:
+  allowPrivilegeEscalation: false
+  runAsUser: 1000
+  runAsNonRoot: true
+  capabilities:
+    drop: ["ALL"]
+  seccompProfile:
+    type: RuntimeDefault
+
+vault:
+  enabled: true
+  mount: app-des
+  path: app/frontend
+  refreshAfter: 1h

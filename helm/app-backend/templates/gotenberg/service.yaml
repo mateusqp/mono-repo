@@ -1,0 +1,14 @@
+{{- if .Values.gotenberg.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-gotenberg
+  namespace: {{ .Values.global.namespace }}
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Chart.Name }}-gotenberg
+  ports:
+  - port: {{ .Values.gotenberg.service.port }}
+    targetPort: 3000
+{{- end }}

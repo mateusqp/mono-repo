@@ -1,8 +1,0 @@
-backend:
-  env:
-    - name: BACKEND_GREETING
-      value: "{{ printf \"Hello, %s backend\" .Release.Name }}"
-frontend:
-  env:
-    - name: FRONTEND_API_URL
-      value: "https://{{ .Release.Name }}.example.com/api"
